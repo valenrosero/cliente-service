@@ -1,0 +1,54 @@
+### ========================================
+### CLIENTE SERVICE - Pruebas completas
+### ========================================
+
+### 1. Crear Cliente
+POST http://127.0.0.1:8080/api/v1/cliente-service/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Carlos",
+  "apellido": "Ramírez",
+  "email": "carlos.ramirez@example.com",
+  "region": {
+    "id": 1
+  }
+}
+
+### 2. Crear otro Cliente
+POST http://127.0.0.1:8080/api/v1/cliente-service/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Ana",
+  "apellido": "García",
+  "email": "ana.garcia@example.com",
+  "region": {
+    "id": 2
+  }
+}
+
+### 3. Listar todos los clientes
+GET http://127.0.0.1:8080/api/v1/cliente-service/clientes
+
+### 4. Obtener cliente por ID existente
+GET http://127.0.0.1:8080/api/v1/cliente-service/clientes/1
+
+### 5. Probar error 404 de Codelab 04 (Cliente no encontrado)
+GET http://127.0.0.1:8080/api/v1/cliente-service/clientes/999
+
+### 6. Actualizar cliente
+PUT http://127.0.0.1:8080/api/v1/cliente-service/clientes/1
+Content-Type: application/json
+
+{
+  "nombre": "Carlos Andrés",
+  "apellido": "Ramírez López",
+  "email": "carlos.ramirez@example.com",
+  "region": {
+    "id": 1
+  }
+}
+
+### 7. Eliminar cliente
+DELETE http://127.0.0.1:8080/api/v1/cliente-service/clientes/1
