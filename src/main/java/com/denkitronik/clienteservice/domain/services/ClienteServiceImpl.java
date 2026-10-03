@@ -3,8 +3,10 @@ package com.denkitronik.clienteservice.domain.services;
 import com.denkitronik.clienteservice.domain.entities.Cliente;
 import com.denkitronik.clienteservice.domain.entities.Region;
 import com.denkitronik.clienteservice.domain.exception.ClienteNotFoundException;
+import com.denkitronik.clienteservice.domain.exception.ClienteServiceException;
 import com.denkitronik.clienteservice.domain.repositories.IClienteDao;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.denkitronik.clienteservice.domain.repositories.IRegionDao;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,13 @@ import java.util.List;
 @Service
 public class ClienteServiceImpl implements IClienteService {
 
-    @Autowired
-    private IClienteDao clienteDao;
+    private final IClienteDao clienteDao;
+    private final IRegionDao regionDao;
+
+    public ClienteServiceImpl(IClienteDao clienteDao, IRegionDao regionDao) {
+        this.clienteDao = clienteDao;
+        this.regionDao = regionDao;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -40,20 +47,23 @@ public class ClienteServiceImpl implements IClienteService {
     @Override
     @Transactional
     public Cliente save(Cliente cliente) {
-        return clienteDao.save(cliente);
+        try {
+            return clienteDao.save(cliente);
+        } catch (DataIntegrityViolationException e) {
+            throw new ClienteServiceException("Error al guardar cliente: datos duplicados o inválidos", e);
+        }
     }
 
     @Override
     @Transactional
-    public Cliente update(Long id, Cliente cliente) {
-        Cliente actual = clienteDao.findById(id)
-                .orElseThrow(() -> new ClienteNotFoundException(id));
-        actual.setNombre(cliente.getNombre());
-        actual.setApellido(cliente.getApellido());
-        actual.setEmail(cliente.getEmail());
-        actual.setFoto(cliente.getFoto());
-        actual.setRegion(cliente.getRegion());
-        return clienteDao.save(actual);
+    public Cliente update(Long id, Cliente clienteActualizado) {
+        Cliente cliente = findById(id);
+        cliente.setNombre(clienteActualizado.getNombre());
+        cliente.setApellido(clienteActualizado.getApellido());
+        cliente.setEmail(clienteActualizado.getEmail());
+        cliente.setFoto(clienteActualizado.getFoto());
+        cliente.setRegion(clienteActualizado.getRegion());
+        return clienteDao.save(cliente);
     }
 
     @Override
@@ -68,7 +78,6 @@ public class ClienteServiceImpl implements IClienteService {
     @Override
     @Transactional(readOnly = true)
     public List<Region> findAllRegiones() {
-        
-        return clienteDao.findAllRegiones();
+        return regionDao.findAll();
     }
 }
